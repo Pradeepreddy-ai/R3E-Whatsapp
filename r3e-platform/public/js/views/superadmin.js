@@ -333,3 +333,22 @@ async function saveEditMerchant(id) {
 function openRegisterMerchantModal() {
   showToast('Direct merchants to the self-registration form at the login screen.');
 }
+
+
+function deleteMerchantConfirm(merchantId, brandName) {
+  const confirmed = confirm(`Are you sure you want to DELETE "${brandName}" and ALL their data (customers, campaigns, etc)? This cannot be undone.`);
+  if (!confirmed) return;
+  
+  const confirm2 = prompt(`Type "${brandName}" to confirm deletion:`, '');
+  if (confirm2 !== brandName) return showToast('Deletion cancelled.', 'error');
+
+  deleteMerchantNow(merchantId, brandName);
+}
+
+async function deleteMerchantNow(merchantId, brandName) {
+  try {
+    await API.deleteMerchant(merchantId);
+    showToast(`✅ "${brandName}" and all their data have been deleted.`, 'success');
+    renderSADashboard();
+  } catch(e) { showToast(e.message, 'error'); }
+}

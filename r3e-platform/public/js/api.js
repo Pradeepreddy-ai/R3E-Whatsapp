@@ -72,18 +72,46 @@ const API = {
   /* STATS */
   getSystemStats: ()   => API.get('/api/stats/system'),
   getMerchantStats:(id) => API.get(`/api/stats/merchant/${id}`),
+
+  /* Delete a merchant + all their data */
+  async deleteMerchant(merchantId) {
+    const r = await fetch(`/api/merchants/${merchantId}`, {
+      method: 'DELETE', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ deletedBy: window.R3E?.user?.email || 'admin' })
+    });
+    if (!r.ok) throw new Error((await r.json()).error || 'Delete failed');
+    return await r.json();
+  },
+
+  /* Update a customer's data */
+  async updateCustomer(customerId, data) {
+    const r = await fetch(`/api/customers/${customerId}`, {
+      method: 'PUT', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error((await r.json()).error || 'Update failed');
+    return await r.json();
+  },
+
+  /* Delete a single customer */
+  async deleteCustomer(customerId) {
+    const r = await fetch(`/api/customers/${customerId}`, { method: 'DELETE' });
+    if (!r.ok) throw new Error((await r.json()).error || 'Delete failed');
+    return await r.json();
+  },
+
+  /* Download document */
+  async downloadDocument(merchantId, type) {
+    const r = await fetch(`/api/merchants/${merchantId}/document/${type}`);
+    if (r.ok) {
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `document-${type}.${blob.type.includes('pdf')?'pdf':'jpg'}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  },
+
 };
-
-/* FORGOT PASSWORD / OTP */
-Object.assign(API, {
-  forgotPassword: (email)              => API.post('/api/auth/forgot-password', { email }),
-  verifyOTP:      (email, otp)         => API.post('/api/auth/verify-otp',      { email, otp }),
-  resetPassword:  (email, token, pwd)  => API.post('/api/auth/reset-password',  { email, token, newPassword: pwd }),
-});
-
-/* ── Social Media ── */
-Object.assign(API, {
-  getSocialAccounts:    (mid)             => API.get(`/api/social/accounts/${mid}`),
-  disconnectSocial:     (mid, platform)   => API.delete(`/api/social/disconnect/${mid}/${platform}`),
-  publishFlyer:         (mid, body)       => API.post(`/api/social/publish/${mid}`, body),
-});

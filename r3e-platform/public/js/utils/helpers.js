@@ -287,3 +287,47 @@ async function saToggleEngine(id, on) {
     showToast(e.message, 'error');
   }
 }
+
+
+function docPill(label, dataUrl) {
+  if (!dataUrl) return '';
+  const isDataUrl = dataUrl && dataUrl.startsWith('data:');
+  const hasData = isDataUrl || (dataUrl && dataUrl.length > 0);
+  if (!hasData) return '';
+  return `<div style="display:inline-flex;align-items:center;gap:8px;
+    padding:8px 12px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);
+    border-radius:6px;margin-right:8px;margin-bottom:8px">
+    <span style="font-size:11px;color:var(--dash-text);font-weight:600">${label}</span>
+    <button class="btn btn-xs" style="padding:2px 6px;font-size:9px;margin:0"
+      onclick="downloadDocumentData('${label}','${isDataUrl?'data':'file'}','${dataUrl}')">
+      📥 Download
+    </button>
+    ${isDataUrl ? `<a href="${dataUrl}" target="_blank" style="font-size:9px;color:var(--gold);text-decoration:none">
+      👁 Preview
+    </a>` : ''}
+  </div>`;
+}
+
+function downloadDocumentData(label, type, data) {
+  try {
+    if (type === 'data' && data.startsWith('data:')) {
+      const [header, b64] = data.split(',');
+      const mime = header.replace('data:','').replace(';base64','');
+      const bytes = atob(b64);
+      const arr = new Uint8Array(bytes.length);
+      for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+      const blob = new Blob([arr], {type: mime});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = label.replace(/\\s+/g,'-').toLowerCase() + '.' + (mime.includes('pdf')?'pdf':'jpg');
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Document downloading...','success');
+    } else if (type === 'file') {
+      showToast('Document: ' + data, 'info');
+    }
+  } catch(e) {
+    showToast('Download error: ' + e.message, 'error');
+  }
+}

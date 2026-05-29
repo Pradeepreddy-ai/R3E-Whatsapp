@@ -204,7 +204,7 @@ function buildCustomerRows(custs) {
           <th>DOB Month</th><th>Group</th><th>Source</th><th>Subscribed</th><th>Registered</th></tr>
     </thead>
     <tbody>${custs.map(c => `<tr>
-      <td class="txt-mono">${c.id}</td>
+      <td class="txt-mono txt-xs">${c.id}</td>
       <td><strong>${c.firstName} ${c.lastName}</strong></td>
       <td>${c.whatsapp}</td>
       <td class="txt-xs">${c.email || '—'}</td>
@@ -215,6 +215,12 @@ function buildCustomerRows(custs) {
             c.source === 'qr' ? 'qr' : c.source === 'upload' ? 'upload' : 'info')}</td>
       <td>${badge(c.subscribed ? 'Yes' : 'No', c.subscribed ? 'approved' : 'rejected')}</td>
       <td class="txt-xs">${fmtDate(c.registeredAt)}</td>
+      <td style="white-space:nowrap;font-size:11px">
+        <button class="btn btn-xs" style="padding:3px 6px;font-size:10px" 
+          onclick="editCustomerModal('${c.id}')">✏️ Edit</button>
+        <button class="btn btn-xs btn-danger" style="padding:3px 6px;font-size:10px"
+          onclick="deleteCustomerConfirm('${c.id}','${c.firstName}')">🗑</button>
+      </td>
     </tr>`).join('')}
     </tbody>
   </table></div>`;
@@ -1083,3 +1089,118 @@ async function saveWhatsAppSettings() {
   } catch(e) { showToast(e.message, 'error'); }
 }
 function testWhatsApp() { showToast('📱 Test message sent to your WhatsApp number!', 'success'); }
+
+
+/* Edit customer modal */
+async function editCustomerModal(customerId, merchantId) {
+  try {
+    const custs = await API.getCustomers(merchantId);
+    const c = custs.find(x => x.id == customerId);
+    if (!c) return showToast('Customer not found.', 'error');
+
+    openModal('sm', 'Edit Customer', `
+      <div class="form-group"><label class="form-label">First Name</label>
+        <input id="ec-fname" class="form-input" value="${c.firstName||c.first_name||''}" placeholder="John"/></div>
+      <div class="form-group"><label class="form-label">Last Name</label>
+        <input id="ec-lname" class="form-input" value="${c.lastName||c.last_name||''}" placeholder="Smith"/></div>
+      <div class="form-group"><label class="form-label">WhatsApp Number</label>
+        <input id="ec-whatsapp" class="form-input" value="${c.whatsapp||''}" placeholder="+44 7700 000000"/></div>
+      <div class="form-group"><label class="form-label">Email</label>
+        <input id="ec-email" class="form-input" type="email" value="${c.email||''}" placeholder="john@email.com"/></div>
+      <div class="form-group"><label class="form-label">Birth Month</label>
+        <input id="ec-dob" class="form-input" value="${c.dobMonth||c.dob_month||''}" placeholder="March"/></div>
+      <div class="form-group"><label class="form-label">Town</label>
+        <input id="ec-town" class="form-input" value="${c.town||''}" placeholder="London"/></div>
+      <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="ec-subscribed" ${c.subscribed?'checked':''} style="width:16px;height:16px;accent-color:var(--gold)"/>
+        <span>Subscribed to updates</span>
+      </label>`,
+      `<button class="btn btn-primary" onclick="saveCustomerEdit('${customerId}','${merchantId}')">Save Changes</button>
+       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>`);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function saveCustomerEdit(customerId, merchantId) {
+  const data = {
+    firstName:  document.getElementById('ec-fname')?.value.trim()||'',
+    lastName:   document.getElementById('ec-lname')?.value.trim()||'',
+    whatsapp:   document.getElementById('ec-whatsapp')?.value.trim()||'',
+    email:      document.getElementById('ec-email')?.value.trim()||'',
+    dobMonth:   document.getElementById('ec-dob')?.value.trim()||'',
+    town:       document.getElementById('ec-town')?.value.trim()||'',
+    subscribed: document.getElementById('ec-subscribed')?.checked||false,
+  };
+  if (!data.firstName || !data.whatsapp) return showToast('First name and WhatsApp are required.', 'error');
+  try {
+    await API.updateCustomer(customerId, data);
+    closeModal();
+    showToast('✅ Customer updated!', 'success');
+    renderMCustomers();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function deleteCustomerConfirm(customerId, customerName) {
+  if (!confirm(`Delete "${customerName}"? This cannot be undone.`)) return;
+  deleteCustomerNow(customerId);
+}
+
+async function deleteCustomerNow(customerId) {
+  try {
+    await API.deleteCustomer(customerId);
+    showToast('✅ Customer deleted.', 'success');
+    renderMCustomers();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+
+/* Merchant Profile & Documents */
+async function renderMProfile() {
+  setTopbar('My Profile & Documents');
+  renderContent('<div class="loading-state">Loading profile...</div>');
+  const mid = getMid();
+  try {
+    const m = await API.getMerchant(mid);
+    const regCert     = m.regCert || m.reg_cert || '';
+    const councilCert = m.councilCert || m.council_cert || '';
+
+    const fields = [
+      ['Business Name', m.businessName||m.business_name],
+      ['Brand Name',    m.brandName||m.brand_name],
+      ['Category',      m.category],
+      ['Email',         m.email],
+      ['Phone',         m.phone],
+      ['Address',       m.address],
+      ['Town',          m.town],
+      ['County',        m.county],
+      ['Postcode',      m.postcode],
+      ['Status',        (m.status||'').toUpperCase()],
+      ['Engine',        m.engineOn ? 'ON' : 'OFF'],
+      ['QR Code',       m.qrId||'Not assigned'],
+    ];
+
+    renderContent(
+      '<div class="page-header"><div>' +
+        '<div class="page-title">My Profile & Documents</div>' +
+        '<div class="page-sub">View and download your business documents</div>' +
+      '</div></div>' +
+      '<div class="grid-2">' +
+        '<div class="card"><div class="card-title">Business Information</div>' +
+          '<div class="approval-grid">' +
+            fields.map(([l,v]) => '<div class="ag-label">'+l+'</div><div class="ag-val">'+(v||'—')+'</div>').join('') +
+          '</div></div>' +
+        '<div class="card"><div class="card-title">Uploaded Documents</div>' +
+          '<div style="margin-top:12px">' +
+            (regCert     ? docPill('Company Registration',  regCert)     : '<div style="color:var(--dash-text3);font-size:12px">No registration certificate uploaded</div>') +
+            (councilCert ? docPill('Council Certificate',   councilCert) : '<div style="color:var(--dash-text3);font-size:12px">No council certificate uploaded</div>') +
+          '</div>' +
+          '<div style="margin-top:16px;padding:12px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:6px;font-size:11px;color:var(--dash-text3)">' +
+            '<strong>Document Info:</strong><br/>' +
+            'These documents were uploaded during your registration and reviewed by admins during approval.' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  } catch(e) {
+    renderContent('<div class="empty-state"><div class="empty-icon">error</div><div class="empty-title">Error: '+e.message+'</div></div>');
+  }
+}

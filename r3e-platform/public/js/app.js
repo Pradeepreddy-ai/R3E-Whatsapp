@@ -39,7 +39,9 @@ const NAV = {
                                   { view:'m-managers',    icon:'👨‍💼', label:'Managers'        }] },
     { section:'Campaigns', items:[{ view:'m-discounts',   icon:'🏷️', label:'Discounts'      },
                                   { view:'m-flyers',      icon:'🖼️', label:'Flyers'          }] },
-    { section:'Settings',  items:[{ view:'m-hours',       icon:'🕐', label:'Business Hours'  },
+    { section:'Settings',  items:[{ view:'m-profile',      icon:'👤', label:'Profile & Docs'  }] },
+    { section:'Settings',  items:[{ view:'m-profile',      icon:'👤', label:'Profile & Docs'  },
+                                  { view:'m-hours',       icon:'🕐', label:'Business Hours'  },
                                   { view:'m-whatsapp',    icon:'💬', label:'WhatsApp'        },
                                   { view:'m-social',      icon:'📲', label:'Social Media'    }] },
   ],
@@ -49,6 +51,7 @@ const NAV = {
     { section:'Customers', items:[{ view:'m-customers',   icon:'👥', label:'Customers'      }] },
     { section:'Campaigns', items:[{ view:'m-discounts',   icon:'🏷️', label:'Discounts'      },
                                   { view:'m-flyers',      icon:'🖼️', label:'Flyers'          }] },
+    { section:'Settings',  items:[{ view:'m-profile',      icon:'👤', label:'Profile & Docs'  }] },
   ],
 };
 
@@ -67,6 +70,7 @@ const VIEW_MAP = {
   'm-flyers':     renderMFlyers,     'm-schedule':   renderMSchedule,
   'm-hours':      renderMHours,      'm-whatsapp':   renderMWhatsApp,
   'm-social':     showSocialView,
+  'm-profile':    renderMProfile,
   'm-managers':   renderMManagers,
   'profile':      renderProfile,
 };
@@ -74,6 +78,29 @@ const VIEW_MAP = {
 /* ════════════════════════════════════════════
    BOOT APP — called after successful login
 ════════════════════════════════════════════ */
+function buildNav(u) {
+  if (!u) u = R3E.user;
+  if (!u) return;
+  const subRole = u.subRole || (u.userType === 'merchant' ? 'owner' : '');
+  const navKey = u.userType === 'merchant' ? 'merchant_' + subRole : u.userType;
+  const cfg = NAV[navKey] || [];
+  let navHtml = '';
+  cfg.forEach(sec => {
+    navHtml += '<div class="sidebar-section"><div class="sidebar-section-label">' + sec.section + '</div>';
+    sec.items.forEach(item => {
+      navHtml += '<div class="nav-item" data-view="' + item.view + '" onclick="showView(\'' + item.view + '\',this)">' +
+        '<span class="nav-icon">' + item.icon + '</span>' + item.label + '</div>';
+    });
+    navHtml += '</div>';
+  });
+  const navEl = document.getElementById('nav-links');
+  if (navEl) navEl.innerHTML = navHtml;
+  const roleLabels = { superadmin:'Super Administrator', admin:'Administrator', support:'Support Agent',
+    merchant: subRole === 'owner' ? 'Merchant Owner' : 'Merchant Manager' };
+  const roleSb = document.getElementById('u-role-sb');
+  if (roleSb) roleSb.textContent = roleLabels[u.userType] || u.userType;
+}
+
 function bootApp() {
   const u = R3E.user;
 
@@ -95,19 +122,7 @@ function bootApp() {
   document.getElementById('u-role-sb').textContent = roleLabels[u.userType] || u.userType;
 
   /* ── Build sidebar nav ── */
-  const navKey = u.userType === 'merchant' ? `merchant_${u.subRole}` : u.userType;
-  const cfg = NAV[navKey] || [];
-  let navHtml = '';
-  cfg.forEach(sec => {
-    navHtml += `<div class="sidebar-section"><div class="sidebar-section-label">${sec.section}</div>`;
-    sec.items.forEach(item => {
-      navHtml += `<div class="nav-item" data-view="${item.view}" onclick="showView('${item.view}',this)">
-        <span class="nav-icon">${item.icon}</span>${item.label}
-      </div>`;
-    });
-    navHtml += '</div>';
-  });
-  document.getElementById('nav-links').innerHTML = navHtml;
+  buildNav(u);
 
   /* ── Topbar right: role badge + back-to-site ── */
   const roleClasses = { superadmin:'role-superadmin', admin:'role-admin', support:'role-support', merchant:'role-merchant' };

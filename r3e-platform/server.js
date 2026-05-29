@@ -1615,6 +1615,69 @@ app.post('/api/whatsapp/send/:merchantId', wrap(async (req, res) => {
   res.json({ sent, failed, total: customers.length });
 }));
 
+
+/* ════════════════════════════════════════════════
+   MERCHANT DELETE + CUSTOMER EDIT
+════════════════════════════════════════════════ */
+
+/* DELETE /api/merchants/:id — delete merchant + all data */
+app.delete('/api/merchants/:id', wrap(async (req, res) => {
+  const m = await one(`SELECT brand_name, email FROM merchants WHERE id=$1`, [req.params.id]);
+  if (!m) return res.status(404).json({ error: 'Merchant not found.' });
+  /* CASCADE deletes customers, discounts, campaigns etc via FK */
+  await run(`DELETE FROM merchants WHERE id=$1`, [req.params.id]);
+  await addLog('Merchant Deleted', req.body.deletedBy||'admin', m.brand_name, `Email: ${m.email}`);
+  res.json({ success: true });
+}));
+
+/* PUT /api/customers/:id — update customer data */
+app.put('/api/customers/:id', wrap(async (req, res) => {
+  const { firstName, lastName, whatsapp, email, dobMonth, town, subscribed } = req.body;
+  const existing = await one(`SELECT * FROM customers WHERE id=$1`, [req.params.id]);
+  if (!existing) return res.status(404).json({ error: 'Customer not found.' });
+  await run(`
+    UPDATE customers SET
+      first_name=$1, last_name=$2, whatsapp=$3,
+      email=$4, dob_month=$5, town=$6, subscribed=$7
+    WHERE id=$8`,
+    [firstName||existing.first_name, lastName||existing.last_name,
+     whatsapp||existing.whatsapp, email||existing.email||'',
+     dobMonth||existing.dob_month||'', town||existing.town||'',
+     subscribed !== undefined ? subscribed : existing.subscribed,
+     req.params.id]
+  );
+  res.json({ success: true });
+}));
+
+/* DELETE /api/customers/:id — delete a single customer */
+app.delete('/api/customers/:id', wrap(async (req, res) => {
+  const c = await one(`SELECT merchant_id FROM customers WHERE id=$1`, [req.params.id]);
+  if (!c) return res.status(404).json({ error: 'Customer not found.' });
+  await run(`DELETE FROM customers WHERE id=$1`, [req.params.id]);
+  res.json({ success: true });
+}));
+
+/* GET /api/merchants/:id/document/:type — serve stored document */
+app.get('/api/merchants/:id/document/:type', wrap(async (req, res) => {
+  const { type } = req.params;
+  const col = type === 'reg' ? 'reg_cert' : 'council_cert';
+  const m = await one(`SELECT ${col} AS doc FROM merchants WHERE id=$1`, [req.params.id]);
+  if (!m?.doc) return res.status(404).json({ error: 'Document not found.' });
+
+  const dataUrl = m.doc;
+  if (dataUrl.startsWith('data:')) {
+    const [header, b64] = dataUrl.split(',');
+    const mime = header.replace('data:','').replace(';base64','');
+    const buf  = Buffer.from(b64, 'base64');
+    const ext  = mime.includes('pdf') ? 'pdf' : mime.includes('png') ? 'png' : 'jpg';
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Content-Disposition', `attachment; filename="document.${ext}"`);
+    return res.send(buf);
+  }
+  /* Stored as filename only — return as text */
+  res.json({ filename: dataUrl });
+}));
+
 /* ════════════════════════════════════════════════
    STATIC PAGE ROUTES
 ════════════════════════════════════════════════ */
