@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FAQ — R3E Customer Retention Platform</title>
+<meta name="description" content="Answers to the most common questions about R3E — getting started, how campaigns work, customer data, WhatsApp integration, billing and security."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/global.css"/>
+<style>
+.faq-layout{display:grid;grid-template-columns:220px 1fr;gap:56px;align-items:start}
+.faq-sidebar{position:sticky;top:92px}
+.faq-cat-list{display:flex;flex-direction:column;gap:4px}
+.faq-cat{padding:8px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .18s;background:none;border:none;text-align:left;font-family:var(--ff-body);width:100%}
+.faq-cat:hover{background:rgba(255,255,255,0.04);color:var(--text)}
+.faq-cat.active{background:rgba(108,99,255,0.1);color:var(--primary2)}
+.faq-section{margin-bottom:52px}
+.faq-section:last-child{margin-bottom:0}
+.faq-section-title{font-family:var(--ff-display);font-size:20px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border2)}
+.faq-item{border-bottom:1px solid var(--border2)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 0;cursor:pointer;font-size:14px;font-weight:500;gap:12px;transition:color .15s}
+.faq-q:hover{color:var(--primary2)}
+.faq-arrow{color:var(--primary2);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-item.open .faq-a{max-height:240px}
+.faq-a-inner{padding:0 0 18px;font-size:13px;color:var(--text3);line-height:1.75}
+.search-wrap{position:relative;margin-bottom:32px}
+.faq-search{width:100%;padding:11px 16px 11px 42px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;outline:none;font-family:var(--ff-body);transition:border .2s}
+.faq-search:focus{border-color:var(--primary2)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none}
+.no-results{padding:32px;text-align:center;color:var(--text3);font-size:13px;display:none}
+@media(max-width:800px){.faq-layout{grid-template-columns:1fr;gap:28px}.faq-sidebar{position:static}.faq-cat-list{flex-direction:row;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="page-hero">
+  <div class="page-hero-glow"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container">
+    <div class="page-hero-inner">
+      <div class="eyebrow" style="margin-bottom:14px">Help Centre</div>
+      <h1 class="display-xl">Frequently asked<br><em class="accent">questions</em></h1>
+      <p class="body-lg">Can't find what you're looking for? <a href="mailto:support@r3e.platform" style="color:var(--primary2)">Contact our team →</a></p>
+    </div>
+  </div>
+</div>
+
+<section class="section-pad">
+  <div class="container">
+    <div class="faq-layout">
+
+      <!-- Sidebar -->
+      <div class="faq-sidebar reveal-left">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Categories</div>
+        <div class="faq-cat-list">
+          <button class="faq-cat active" onclick="scrollToSec('general',this)">General</button>
+          <button class="faq-cat" onclick="scrollToSec('getting-started',this)">Getting Started</button>
+          <button class="faq-cat" onclick="scrollToSec('campaigns',this)">Campaigns</button>
+          <button class="faq-cat" onclick="scrollToSec('customers',this)">Customers</button>
+          <button class="faq-cat" onclick="scrollToSec('whatsapp',this)">WhatsApp</button>
+          <button class="faq-cat" onclick="scrollToSec('billing',this)">Billing</button>
+          <button class="faq-cat" onclick="scrollToSec('security',this)">Security &amp; GDPR</button>
+        </div>
+        <div style="margin-top:28px;padding:18px;border:1px solid var(--border2);border-radius:10px;background:rgba(255,255,255,0.02)">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">Still need help?</div>
+          <p class="body-sm" style="margin-bottom:12px">Our support team responds within 2 business hours.</p>
+          <a href="mailto:support@r3e.platform" class="btn btn-outline btn-sm btn-full">Contact Support</a>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="reveal-right">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="faq-search" id="faq-search" placeholder="Search all questions…" oninput="searchFAQ(this.value)"/>
+        </div>
+        <div id="no-results" class="no-results">No matching questions. <a href="mailto:support@r3e.platform" style="color:var(--primary2)">Ask our team →</a></div>
+
+        <!-- General -->
+        <div class="faq-section" id="sec-general">
+          <div class="faq-section-title">General</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What is R3E?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">R3E is an automated customer retention and engagement platform built for local SME merchants. It sends personalised WhatsApp campaigns to your existing customers on your behalf, bringing them back more often — without any manual work on your part.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What types of businesses does R3E support?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">R3E is built for local SME merchants of all kinds — restaurants, cafés, bakeries, grocery stores, beauty salons, retail shops, barbers, takeaways, and more. The platform adapts its approach to suit the buying habits and visit patterns of your specific business type.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Do I need any technical knowledge to use it?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">None at all. R3E is designed for busy merchants, not marketers or developers. Setup takes under an hour, and once you're live, the platform runs automatically with no daily management required.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What languages is the platform available in?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">The R3E dashboard is available in English. Your WhatsApp message templates can be customised in any language to match your customer base.</div></div></div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="faq-section" id="sec-getting-started">
+          <div class="faq-section-title">Getting Started</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How do I register my business?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Click "Start Free Trial" on any page to access the merchant registration form. Complete your business profile and upload your Company Registration Certificate and Council Brand Approval Certificate. Our team typically reviews applications within 24 business hours.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Why do I need to upload documents?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">We verify that all businesses on our platform are legitimate and authorised to operate. This protects your customers and maintains the quality of our merchant network. Required documents are your Company Registration Certificate and Council Brand Approval Certificate.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How long does approval take?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Most applications are reviewed within 24 business hours of submitting complete documentation. If anything is unclear or missing, we will contact you by email. Once approved, you have immediate access to the full dashboard.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What do I get once I'm approved?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">You instantly receive your unique QR code, full dashboard access, and the ability to import customers and configure your campaign preferences. You can have your first campaign going out on the same day as approval.</div></div></div>
+        </div>
+
+        <!-- Campaigns -->
+        <div class="faq-section" id="sec-campaigns">
+          <div class="faq-section-title">Campaigns &amp; Offers</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How do the different campaign types work?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">R3E's automated engine manages all campaign activity on your behalf. Campaigns are personalised to each customer based on their behaviour and visit history, so every customer receives an offer that feels relevant to them. The engine continuously adapts to ensure your loyal customers are rewarded, occasional visitors are encouraged back, and new customers are welcomed — all automatically.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How does R3E decide who gets which offer?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Our engine analyses each customer's engagement history and behaviour to determine the most effective offer for them. This all happens automatically in the background. You simply define your offer preferences — ranges, business hours, and which campaign levels to activate — and the platform handles the rest.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Will customers receive the same offer every time?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">No. R3E's proprietary engine ensures every customer receives varied, personalised offers over time. This prevents customers from becoming accustomed to a specific discount and keeps your campaigns feeling fresh and genuine.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can I set different offers for different days of the week?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. You can configure your offer preferences for each day of the week, setting minimum and maximum discount ranges. You can plan up to one month ahead, and adjust your settings at any time. You don't have to set offers for every day — campaigns only run on days you've configured.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can I control how often campaigns are sent?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes — your business hours configuration determines when campaigns can be sent. R3E's engine handles the frequency automatically to keep customers engaged without overwhelming them. The system is designed to contact each customer at the optimal interval based on their behaviour.</div></div></div>
+        </div>
+
+        <!-- Customers -->
+        <div class="faq-section" id="sec-customers">
+          <div class="faq-section-title">Customer Management</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Do my customers need to download an app?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">No. Customers receive your offers directly via WhatsApp — the app they already use. Registration happens via a simple mobile web page that opens when they scan your QR code. No app install, no account creation, no friction.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How do I add my existing customers?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Upload a CSV or Excel file with your customer list. Required fields are: First Name, Last Name, WhatsApp Number, and Town. Email address and date of birth month are optional but improve personalisation. The system imports and enrols customers automatically.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What information does the QR registration form collect?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">The QR registration page collects: First Name, Last Name, WhatsApp Number, Email Address (optional), Date of Birth Month, Town, and explicit consent to receive marketing messages. All data is stored securely with a timestamped consent record for GDPR compliance.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can customers opt out of messages?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. Customers can unsubscribe at any time by replying to any message. Their status is updated immediately and they will no longer receive campaigns. You can also manage individual customer subscriptions from your dashboard.</div></div></div>
+        </div>
+
+        <!-- WhatsApp -->
+        <div class="faq-section" id="sec-whatsapp">
+          <div class="faq-section-title">WhatsApp Integration</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Do I need a WhatsApp Business account?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. You need a WhatsApp Business API account set up through Meta's official programme. You'll need a Business Account ID and Phone Number ID from the Meta Developer Console. R3E connects directly to the WhatsApp Cloud API using your credentials.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Does R3E charge per WhatsApp message?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">R3E does not charge per message — your subscription covers access to the platform. Meta charges conversation fees through your own WhatsApp Business API account. These are generally low and region-dependent. Business-initiated conversation pricing from Meta applies.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can I send email campaigns too?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes, on the Growth and Enterprise plans. R3E integrates with SMTP, SendGrid, and Mailgun as an optional secondary channel. Email campaigns follow the same engagement logic as WhatsApp, so your messaging stays consistent across channels.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can I customise what my messages say?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. You can create and customise message templates in your own brand voice. Templates support dynamic variables like the customer's name, your brand name, the offer amount, and the expiry time. Templates are reviewed once and then reused automatically for every campaign.</div></div></div>
+        </div>
+
+        <!-- Billing -->
+        <div class="faq-section" id="sec-billing">
+          <div class="faq-section-title">Billing &amp; Plans</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Is there a free trial?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. Every plan includes a full 14-day free trial with access to all features. No credit card is required to start. At the end of the trial, you can choose to subscribe or your account will be paused — your data is retained for 30 days.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can I cancel at any time?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. Cancel any time from your account settings — no cancellation fees and no notice period required. Your subscription runs until the end of the current billing period. Your data is retained for 30 days after cancellation before permanent deletion.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>What payment methods do you accept?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">We accept all major credit and debit cards via Stripe. Annual invoicing is available on Enterprise plans. All payments are processed securely — R3E never stores your full card details.</div></div></div>
+        </div>
+
+        <!-- Security -->
+        <div class="faq-section" id="sec-security">
+          <div class="faq-section-title">Security &amp; GDPR</div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>How is my customer data protected?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">All personal data — including phone numbers and email addresses — is encrypted at rest and in transit using industry-standard encryption. Access is controlled via role-based permissions, ensuring that only authorised users can view customer information.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Is R3E GDPR compliant?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. GDPR compliance is built into the core of R3E. Every customer registration captures explicit, timestamped consent. Enterprise plans include additional tools: full data export for subject access requests, right-to-erasure processing, data retention controls, and a full audit log.</div></div></div>
+          <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)"><span>Are customers informed about how their data is used?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. The QR registration form includes a clear Terms & Conditions consent checkbox and explicit marketing opt-in. Customers must actively tick this box before their registration is accepted. The timestamp and consent status are permanently recorded for compliance purposes.</div></div></div>
+          <div class="faq-item" style="border-bottom:none"><div class="faq-q" onclick="toggleFAQ(this)"><span>Can customers request their data be deleted?</span><span class="faq-arrow">+</span></div><div class="faq-a"><div class="faq-a-inner">Yes. Customers can unsubscribe at any time, and merchants can remove individual customers from the dashboard. Enterprise plan customers have access to full right-to-erasure tools to permanently delete a customer's data in compliance with GDPR Article 17.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band" style="background:var(--ink2)">
+  <div class="cta-band-glow"></div>
+  <div class="container">
+    <div class="cta-band-inner reveal">
+      <div class="eyebrow" style="margin-bottom:14px">Still have questions?</div>
+      <h2 class="display-xl">Our team is here to help</h2>
+      <p>We respond to every enquiry within 2 business hours.</p>
+      <div class="cta-band-actions">
+        <a href="mailto:support@r3e.platform" class="btn btn-primary btn-lg">Contact Support</a>
+        <a href="/app.html" class="btn btn-ghost btn-lg">Start Free Trial</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="/js/components/nav.js"></script>
+<script>
+function toggleFAQ(q) {
+  const item = q.closest('.faq-item');
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+function scrollToSec(id, btn) {
+  document.querySelectorAll('.faq-cat').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const el = document.getElementById('sec-' + id);
+  if (el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+}
+function searchFAQ(q) {
+  const term = q.toLowerCase().trim();
+  const noRes = document.getElementById('no-results');
+  let found = 0;
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const match = !term || item.textContent.toLowerCase().includes(term);
+    item.style.display = match ? '' : 'none';
+    if (match) found++;
+  });
+  document.querySelectorAll('.faq-section').forEach(sec => {
+    const vis = Array.from(sec.querySelectorAll('.faq-item')).some(i => i.style.display !== 'none');
+    sec.style.display = vis ? '' : 'none';
+  });
+  noRes.style.display = (found === 0 && term) ? 'block' : 'none';
+}
+</script>
+<script src="/js/components/chatbot.js"></script>
+</body>
+</html>
