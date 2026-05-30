@@ -1111,6 +1111,7 @@ async function sendManualWhatsApp(mid) {
             '• Test mode: add recipient numbers in Meta Developer Console → API Setup → Test Numbers<br/>' +
             '• Free-text messages require customer to message you first within 24h<br/>' +
             '• For campaigns: create a WhatsApp Message Template in Meta Business Suite<br/>' +
+            '• <strong>Authentication Error?</strong> Your token expired — get a Permanent Token from Meta Business Suite → System Users<br/>' +
             '<a href="https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages" target="_blank" style="color:var(--gold)">View Meta docs ↗</a>' +
             '</div>';
         resultEl.innerHTML = msg;

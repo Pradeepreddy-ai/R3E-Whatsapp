@@ -1615,10 +1615,14 @@ app.post('/api/whatsapp/test', wrap(async (req, res) => {
       res.json({ success: true, messageId: data.messages[0].id });
     } else {
       const errMsg = data.error?.error_user_msg || data.error?.message || JSON.stringify(data);
-      const hint = errMsg.includes('not a valid WhatsApp') ? ' — Tip: This number must have WhatsApp installed.'
-        : errMsg.includes('Token') || errMsg.includes('token') ? ' — Tip: Check your API Access Token in Meta Business Suite.'
-        : errMsg.includes('template') ? ' — Tip: Use a Meta-approved message template for outbound messages.'
-        : errMsg.includes('(#131030)') ? ' — Tip: Add this number as a test recipient in Meta Developer Console first.'
+      const isAuthErr = errMsg.toLowerCase().includes('authentication') ||
+        errMsg.includes('190') || errMsg.includes('OAuthException') ||
+        data.error?.code === 190;
+      const hint = isAuthErr
+        ? ' — TOKEN EXPIRED. Fix: Meta Business Suite → Settings → System Users → Generate New Token → select whatsapp_business_messaging + whatsapp_business_management permissions. Use a PERMANENT token (never expires).'
+        : errMsg.includes('not a valid WhatsApp') ? ' — This number must have WhatsApp installed.'
+        : errMsg.includes('(#131030)') ? ' — Add this recipient in Meta Developer Console → WhatsApp → API Setup → Test Recipients, then have them send you a WhatsApp message first.'
+        : errMsg.includes('template') ? ' — Proactive messages require a Meta-approved template. Create one in Meta Business Suite → Account Tools → Message Templates.'
         : '';
       res.status(400).json({ success: false, error: errMsg + hint });
     }

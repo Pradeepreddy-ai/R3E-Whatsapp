@@ -124,4 +124,21 @@ const API = {
     }
   },
 
+
+  /* Social Media */
+  getSocialAccounts: (mid)        => API.get(`/api/social/accounts/${mid}`),
+  disconnectSocial:  (mid, plat)  => API.del(`/api/social/disconnect/${mid}/${plat}`),
+  publishFlyer:      (mid, data)  => API.post(`/api/social/publish/${mid}`, data),
+
+  /* Flyers */
+  getFlyers: async (mid) => {
+    try {
+      const rows = await API.get(`/api/flyers/${mid}`);
+      // rows is array of {slotIndex, dataUrl} — convert to indexed array
+      const arr = [null, null, null];
+      if (Array.isArray(rows)) rows.forEach(r => { if (r.slotIndex >= 0 && r.slotIndex < 3) arr[r.slotIndex] = r.dataUrl || r.data_url; });
+      return arr;
+    } catch { return [null, null, null]; }
+  },
+
 };
