@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Industries — R3E Customer Retention Platform</title>
+<meta name="description" content="R3E works for restaurants, cafés, grocery stores, beauty salons, bakeries, retail shops and more. Built to adapt to any local business type."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/global.css"/>
+<style>
+.ind-tabs{display:flex;gap:8px;margin-bottom:48px;flex-wrap:wrap}
+.ind-btn{padding:10px 20px;border:1px solid var(--border2);border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);background:rgba(255,255,255,0.02);transition:all .2s;font-family:var(--ff-body)}
+.ind-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--text)}
+.ind-btn.active{background:var(--primary2);color:#fff;border-color:var(--primary2)}
+.ind-panel{display:none}
+.ind-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.ind-info .eyebrow{margin-bottom:12px}
+.ind-info h2{margin-bottom:16px}
+.ind-info p{margin-bottom:28px}
+.ind-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+.ind-stat{padding:16px;border:1px solid var(--border2);border-radius:10px;background:rgba(255,255,255,0.02)}
+.is-val{font-family:var(--ff-display);font-size:26px;font-weight:700;color:var(--primary2);margin-bottom:4px}
+.is-lbl{font-size:12px;color:var(--text3)}
+.ind-feats{display:flex;flex-direction:column;gap:12px}
+.ind-feat{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2)}
+.ind-visual{background:var(--ink3);border:1px solid var(--border2);border-radius:16px;overflow:hidden;position:sticky;top:90px}
+.iv-header{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:6px}
+.iv-dot{width:9px;height:9px;border-radius:50%}
+.iv-body{padding:20px}
+.msg-bubble{padding:12px 14px;border-radius:10px 10px 10px 2px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.15);font-size:12px;color:var(--text2);line-height:1.65;position:relative;margin-bottom:8px}
+.msg-meta{font-size:10px;color:var(--text3);text-align:right;margin-top:4px}
+.all-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ai-card{padding:24px;border:1px solid var(--border2);border-radius:12px;background:rgba(255,255,255,0.02);cursor:pointer;transition:all .25s}
+.ai-card:hover,.ai-card.active{border-color:var(--border);background:rgba(108,99,255,0.05)}
+.ai-emoji{font-size:30px;margin-bottom:10px}
+.ai-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.ai-desc{font-size:12px;color:var(--text3);line-height:1.6}
+@media(max-width:900px){.ind-panel.active{grid-template-columns:1fr;gap:32px}.ind-visual{position:static}.all-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.all-grid{grid-template-columns:1fr}.ind-tabs{gap:6px}}
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="page-hero">
+  <div class="page-hero-glow"></div>
+  <div class="page-hero-grid"></div>
+  <div class="container">
+    <div class="page-hero-inner">
+      <div class="eyebrow" style="margin-bottom:14px">Industries</div>
+      <h1 class="display-xl">Built for every type<br>of <em class="accent">local business</em></h1>
+      <p class="body-lg">R3E adapts to the rhythm of your industry — your busy periods, your customer habits, and what brings them back.</p>
+    </div>
+  </div>
+</div>
+
+<section class="section-pad">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow" style="margin-bottom:14px">Your Industry</div>
+      <h2 class="display-lg" style="margin-bottom:14px">Select your business type below</h2>
+      <p class="body-md" style="max-width:520px">R3E adapts its campaign approach based on your industry's customer patterns — visit frequency, spending habits, and what motivates people to return.</p>
+    </div>
+    <div class="ind-tabs reveal">
+      <button class="ind-btn active" onclick="showInd('restaurant',this)">🌶️ Restaurant</button>
+      <button class="ind-btn" onclick="showInd('cafe',this)">☕ Café</button>
+      <button class="ind-btn" onclick="showInd('grocery',this)">🛒 Grocery</button>
+      <button class="ind-btn" onclick="showInd('beauty',this)">💆 Beauty &amp; Wellness</button>
+      <button class="ind-btn" onclick="showInd('bakery',this)">🍞 Bakery</button>
+      <button class="ind-btn" onclick="showInd('retail',this)">🏪 Retail</button>
+    </div>
+
+    <!-- Restaurant -->
+    <div id="ind-restaurant" class="ind-panel active">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Restaurants &amp; Takeaways</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Bring diners back week after week</h2>
+        <p class="body-md">Turn one-time diners into loyal regulars. R3E keeps your restaurant top of mind between visits with personalised offers timed to catch customers when they're deciding where to eat.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">2–3×</div><div class="is-lbl">Average visit frequency increase</div></div>
+          <div class="ind-stat"><div class="is-val">38%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Evening and weekend-timed campaigns for maximum impact</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Birthday month offers to drive celebration bookings</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Lapsed customer re-engagement to fill quiet nights</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Loyalty rewards for your most frequent diners</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Friday · 5:30 PM</div>
+          <div class="msg-bubble">Hi Sarah! 🌶️<br><br>It's Friday and we have a special offer just for you at <strong>Spice Palace</strong>!<br><br>🎉 Your exclusive discount is waiting<br>⏰ Valid tonight only<br>🔑 Show this message at the door<br><br>Looking forward to seeing you!</div>
+          <div class="msg-meta">✓✓ Delivered · Expires tonight</div>
+          <div style="margin-top:14px;padding:10px 14px;border-radius:8px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.15);font-size:12px;color:var(--text2)">
+            ✅ Sarah redeemed her offer at 7:42 PM
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Café -->
+    <div id="ind-cafe" class="ind-panel">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Cafés &amp; Coffee Shops</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Build daily habits, one coffee at a time</h2>
+        <p class="body-md">Keep your regulars coming back and convert occasional visitors into daily customers. R3E sends timely, relevant offers that feel personal — not promotional.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">+62%</div><div class="is-lbl">Repeat visit frequency</div></div>
+          <div class="ind-stat"><div class="is-val">41%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Morning-timed messages that arrive before the commute</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Quiet afternoon offers to fill slow periods</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Birthday month treat campaigns</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Loyalty rewards for your most frequent visitors</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Wednesday · 7:45 AM</div>
+          <div class="msg-bubble">Good morning James! ☕<br><br>Start your day right at <strong>Green Leaf Café</strong>!<br><br>🎉 A special offer is waiting for you this morning<br>⏰ Valid until 11 AM only<br>🔑 Show at the counter<br><br>See you soon! ☀️</div>
+          <div class="msg-meta">✓✓ Delivered · Expires in 3h 15m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grocery -->
+    <div id="ind-grocery" class="ind-panel">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Grocery &amp; Convenience Stores</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Grow basket sizes and weekly shop loyalty</h2>
+        <p class="body-md">Encourage customers to choose your store for their regular shop with timely, relevant offers. R3E supports item-level promotions and category-based campaigns alongside standard discounts.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">+28%</div><div class="is-lbl">Average basket size increase</div></div>
+          <div class="ind-stat"><div class="is-val">35%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Pre-weekend shop campaigns timed for maximum visits</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Item-level and category offers alongside percentage discounts</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Family household targeting for bigger basket sizes</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Loyalty rewards for your most regular shoppers</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Thursday · 3:00 PM</div>
+          <div class="msg-bubble">Hi Emma! 🛒<br><br>This weekend at <strong>Fresh Daily Market</strong>:<br><br>🥦 Fresh Veg Basket — Special offer<br>🍞 Artisan Bread — Reduced price<br>🥛 Organic Milk 4pk — Discounted<br><br>Valid Fri–Sun only. Show at checkout.</div>
+          <div class="msg-meta">✓✓ Delivered · Weekend only</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beauty -->
+    <div id="ind-beauty" class="ind-panel">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Beauty &amp; Wellness</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Fill your appointment book and build repeat clients</h2>
+        <p class="body-md">Keep your treatment schedule full, reduce no-shows, and turn one-visit clients into regulars. R3E helps you fill quiet slots and re-engage clients who haven't booked recently.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">+42%</div><div class="is-lbl">Midweek booking increase</div></div>
+          <div class="ind-stat"><div class="is-val">37%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Midweek availability campaigns to fill quiet appointment slots</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Rebooking reminders at natural repeat intervals</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Birthday month pampering campaigns</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Client referral programmes via acquisition campaigns</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Tuesday · 9:00 AM</div>
+          <div class="msg-bubble">Hi Priya! 💆<br><br>We have availability this Wednesday at <strong>Serenity Beauty</strong>!<br><br>🎉 A special offer on any treatment booked today<br>🗓 Wednesday only · Limited slots<br>🔑 Show this message when you arrive<br><br>Reply BOOK to reserve your slot 💅</div>
+          <div class="msg-meta">✓✓ Delivered · Book by midnight</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bakery -->
+    <div id="ind-bakery" class="ind-panel">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Bakeries &amp; Patisseries</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Drive morning footfall and grow loyal regulars</h2>
+        <p class="body-md">Keep your regulars coming back every morning and introduce new customers to your seasonal specials. R3E helps bakeries drive consistent footfall and upsell celebration orders.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">+56%</div><div class="is-lbl">Birthday month redemption rate</div></div>
+          <div class="ind-stat"><div class="is-val">44%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Morning campaigns timed to reach customers before they choose where to go</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Fresh daily special announcements</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Birthday month celebration cake upsells</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Weekend brunch bundle promotions</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Saturday · 7:30 AM</div>
+          <div class="msg-bubble">Good morning Oliver! 🍞<br><br>Fresh out of the oven at <strong>Sunrise Bakery</strong>!<br><br>🥐 Special weekend offer on Croissant Box<br>🎂 Weekend special: Cinnamon Roll Loaf<br>🔑 Show this message in store<br><br>First 20 customers only ☀️</div>
+          <div class="msg-meta">✓✓ Delivered · Until noon</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retail -->
+    <div id="ind-retail" class="ind-panel">
+      <div class="ind-info reveal-left">
+        <div class="eyebrow" style="margin-bottom:10px">Retail Shops</div>
+        <h2 class="display-lg" style="margin-bottom:14px">Drive footfall and clear stock at the right time</h2>
+        <p class="body-md">Give your loyal customers early access to new arrivals and run targeted campaigns to move seasonal stock. R3E helps retail businesses build a loyal customer base that visits regularly.</p>
+        <div class="ind-stats">
+          <div class="ind-stat"><div class="is-val">+67%</div><div class="is-lbl">New stock launch conversion</div></div>
+          <div class="ind-stat"><div class="is-val">31%</div><div class="is-lbl">Average redemption rate</div></div>
+        </div>
+        <div class="ind-feats">
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>End-of-season clearance campaigns to loyal customers first</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>New arrival early-access for your top customers</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Weekend footfall campaigns for browsing-led purchases</div>
+          <div class="ind-feat"><span style="color:var(--primary2)">✦</span>Acquisition campaigns for seasonal sale announcements</div>
+        </div>
+      </div>
+      <div class="ind-visual reveal-right">
+        <div class="iv-header"><div class="iv-dot" style="background:#ff5f57"></div><div class="iv-dot" style="background:#febc2e"></div><div class="iv-dot" style="background:#28c840"></div><div style="font-size:12px;color:var(--text3);margin-left:8px">Example Campaign</div></div>
+        <div class="iv-body">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:12px;text-align:center">Friday · 11:00 AM</div>
+          <div class="msg-bubble">Hi Sophia! 🛍️<br><br>VIP Early Access at <strong>Urban Threads</strong>!<br><br>🎉 Summer Collection — exclusive offer for you<br>📅 Your preview: Today only<br>Public sale starts Saturday<br>🔑 Show this message in store<br><br>Be first. Shop before it sells out! 🔥</div>
+          <div class="msg-meta">✓✓ Delivered · 24h only</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- All Industries -->
+<section class="section-pad" style="background:var(--ink2)">
+  <div class="container">
+    <div class="section-header text-center reveal">
+      <div class="eyebrow" style="margin-bottom:14px">All Business Types</div>
+      <h2 class="display-xl">R3E works for any local business</h2>
+    </div>
+    <div class="all-grid reveal">
+      <div class="ai-card" onclick="jumpToInd('restaurant',this)"><div class="ai-emoji">🌶️</div><div class="ai-name">Restaurants</div><div class="ai-desc">Drive repeat dining visits. Re-engage lapsed customers.</div></div>
+      <div class="ai-card" onclick="jumpToInd('cafe',this)"><div class="ai-emoji">☕</div><div class="ai-name">Cafés &amp; Coffee</div><div class="ai-desc">Build daily habits. Reward your regulars.</div></div>
+      <div class="ai-card" onclick="jumpToInd('grocery',this)"><div class="ai-emoji">🛒</div><div class="ai-name">Grocery Stores</div><div class="ai-desc">Grow basket sizes. Drive weekly shop loyalty.</div></div>
+      <div class="ai-card" onclick="jumpToInd('beauty',this)"><div class="ai-emoji">💆</div><div class="ai-name">Beauty &amp; Wellness</div><div class="ai-desc">Fill your appointment book. Retain clients.</div></div>
+      <div class="ai-card" onclick="jumpToInd('bakery',this)"><div class="ai-emoji">🍞</div><div class="ai-name">Bakeries</div><div class="ai-desc">Drive morning footfall. Upsell celebration orders.</div></div>
+      <div class="ai-card" onclick="jumpToInd('retail',this)"><div class="ai-emoji">🏪</div><div class="ai-name">Retail Shops</div><div class="ai-desc">Seasonal clearance. New arrival campaigns.</div></div>
+      <div class="ai-card"><div class="ai-emoji">🍔</div><div class="ai-name">Fast Food &amp; Takeaways</div><div class="ai-desc">Lunchtime loyalty. Family deal campaigns.</div></div>
+      <div class="ai-card"><div class="ai-emoji">💈</div><div class="ai-name">Barbers &amp; Salons</div><div class="ai-desc">Rebooking reminders. Midweek availability offers.</div></div>
+      <div class="ai-card"><div class="ai-emoji">🍕</div><div class="ai-name">Pizzerias</div><div class="ai-desc">Friday peak targeting. Upsell add-ons.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div class="cta-band-glow"></div>
+  <div class="container">
+    <div class="cta-band-inner reveal">
+      <div class="eyebrow" style="margin-bottom:14px">Your industry is covered</div>
+      <h2 class="display-xl">Start your free trial today</h2>
+      <p>R3E adapts to your business from day one.</p>
+      <div class="cta-band-actions">
+        <a href="/app.html" class="btn btn-primary btn-lg btn-arrow">Get Started Free</a>
+        <a href="/pricing.html" class="btn btn-ghost btn-lg">View Pricing</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="/js/components/nav.js"></script>
+<script>
+function showInd(id, btn) {
+  document.querySelectorAll('.ind-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ind-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ind-' + id).classList.add('active');
+}
+function jumpToInd(id, card) {
+  const btn = document.querySelector(`.ind-btn[onclick*="${id}"]`);
+  if (btn) { showInd(id, btn); window.scrollTo({top: document.querySelector('.ind-tabs').offsetTop - 120, behavior:'smooth'}); }
+  document.querySelectorAll('.ai-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+}
+</script>
+<script src="/js/components/chatbot.js"></script>
+</body>
+</html>
