@@ -1,0 +1,24 @@
+# ── Dependencies ──────────────────────────────────
+node_modules/
+
+# ── Local SQLite (no longer used, keep blocked) ───
+database/r3e.db
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# ── Credentials (NEVER commit these) ─────────────
+database/CREDENTIALS.md
+.env
+.env.local
+.env.production
+.env.*
+
+# ── Local JSON fallback (old version) ─────────────
+database/db.json
+
+# ── OS / editor files ─────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
