@@ -1169,12 +1169,29 @@ app.get('/api/social/connect/:platform', wrap(async (req, res) => {
 
   if (platform === 'facebook' || platform === 'instagram') {
     const appId = process.env.FB_APP_ID;
-    if (!appId) return res.status(503).send(`
+    if (!appId) return res.status(503).send(`<!DOCTYPE html><html>
+      <body style="font-family:Inter,sans-serif;background:#0B0B0B;color:#F0EDE8;text-align:center;padding:40px 24px">
+        <div style="font-size:32px;margin-bottom:12px">⚙️</div>
+        <div style="font-size:16px;font-weight:700;color:#C9A34E;margin-bottom:8px">Setup Required</div>
+        <div style="font-size:13px;color:#888;max-width:340px;margin:0 auto 20px;line-height:1.8">
+          Add these to <strong style="color:#C9A34E">Render → Environment Variables</strong>:<br/>
+          <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px">FB_APP_ID</code> &nbsp;
+          <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px">FB_APP_SECRET</code><br/>
+          <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px">APP_BASE_URL</code><br/><br/>
+          Get them free at<br/>
+          <a href="https://developers.facebook.com" target="_blank" style="color:#C9A34E">developers.facebook.com</a>
+          → My Apps → your app → App Settings → Basic
+        </div>
+        <button onclick="window.close()" style="background:#C9A34E;border:none;color:#000;
+          padding:10px 24px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px">
+          Close Window
+        </button>
+      </body>
       <script>
         window.opener?.postMessage({ type:'social_error', platform:'${platform}',
-          error:'Facebook App ID not configured. Add FB_APP_ID to Render environment.' }, '*');
-        window.close();
-      </script>`);
+          error:'FB_APP_ID not set in Render. Go to your Render service → Environment → add FB_APP_ID and FB_APP_SECRET from developers.facebook.com.' }, '*');
+        setTimeout(() => window.close(), 8000);
+      </script></html>`);
     const scope = 'pages_manage_posts,pages_read_engagement,pages_show_list,' +
                   'instagram_basic,instagram_content_publish,business_management';
     return res.redirect(

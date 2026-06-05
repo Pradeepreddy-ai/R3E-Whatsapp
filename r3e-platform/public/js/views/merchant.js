@@ -242,7 +242,7 @@ function buildCustomerRows(custs) {
       <td class="txt-xs">${fmtDate(c.registeredAt)}</td>
       <td style="white-space:nowrap;font-size:11px">
         <button class="btn btn-xs" style="padding:3px 6px;font-size:10px" 
-          onclick="editCustomerModal('${c.id}')">✏️ Edit</button>
+          onclick="editCustomerModal('${c.id}','${getMid()}')">✏️ Edit</button>
         <button class="btn btn-xs btn-danger" style="padding:3px 6px;font-size:10px"
           onclick="deleteCustomerConfirm('${c.id}','${c.firstName}')">🗑</button>
       </td>
@@ -1138,9 +1138,11 @@ function testWhatsApp() { showToast('📱 Test message sent to your WhatsApp num
 
 /* Edit customer modal */
 async function editCustomerModal(customerId, merchantId) {
+  const mid = merchantId || getMid();
   try {
-    const custs = await API.getCustomers(merchantId);
-    const c = custs.find(x => x.id == customerId);
+    const custs = await API.getCustomers(mid);
+    // ID may be numeric or string — try both
+    const c = custs.find(x => String(x.id) === String(customerId) || x.id == customerId);
     if (!c) return showToast('Customer not found.', 'error');
 
     openModal('sm', 'Edit Customer', `
@@ -1166,6 +1168,7 @@ async function editCustomerModal(customerId, merchantId) {
 }
 
 async function saveCustomerEdit(customerId, merchantId) {
+  const mid = merchantId || getMid();
   const data = {
     firstName:  document.getElementById('ec-fname')?.value.trim()||'',
     lastName:   document.getElementById('ec-lname')?.value.trim()||'',

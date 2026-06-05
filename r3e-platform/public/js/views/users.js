@@ -313,29 +313,28 @@ async function openCreateUserModal(preRole, preSubRole) {
 
     <div class="card" style="padding:14px;margin-bottom:14px;background:rgba(255,255,255,0.02)">
       <div class="card-title" style="margin-bottom:12px">Role & Access</div>
+      <input type="hidden" id="nu-role-value" value="${preRole||'superadmin'}|${preSubRole||''}"/>
       <div style="display:flex;flex-direction:column;gap:8px" id="role-selector">
-        ${ROLE_DEFS.map(r => `
-          <label style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;
-            border:1px solid var(--dash-border2);border-radius:8px;cursor:pointer;transition:all .18s"
-            onclick="selectUserRole('${r.key}','${r.subRole||''}')"
-            id="role-opt-${r.key}-${r.subRole||'none'}"
-            onmouseover="this.style.borderColor='var(--gold-border)'"
-            onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='var(--dash-border2)'">
-            <input type="radio" name="nu-role" value="${r.key}|${r.subRole||''}"
-              style="margin-top:2px;accent-color:var(--gold)"
-              ${preRole===r.key&&(preSubRole||'')===(r.subRole||'')?'checked':''}/>
-            <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                <span style="font-size:18px">${r.icon}</span>
-                <span style="font-size:13px;font-weight:700;color:var(--dash-text)">${r.label}</span>
-                <span class="badge ${r.badge}" style="font-size:9px">${r.key}${r.subRole?'/'+r.subRole:''}</span>
-              </div>
-              <div style="font-size:11px;color:var(--dash-text3);line-height:1.6">${r.description}</div>
-              <div style="font-size:10px;color:var(--dash-text4);margin-top:4px">
-                ${r.access.slice(0,2).join(' · ')}${r.access.length>2?' · ...':''}
-              </div>
-            </div>
-          </label>`).join('')}
+        ${ROLE_DEFS.map(r => {
+          const isDefault = preRole ? (r.key===preRole && (r.subRole||'')===(preSubRole||'')) : (r.key==='superadmin');
+          return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;' +
+            'border:2px solid ' + (isDefault?'var(--gold)':'var(--dash-border2)') + ';border-radius:8px;cursor:pointer;transition:all .18s;' +
+            'background:' + (isDefault?'rgba(201,163,78,0.06)':'') + '"' +
+            ' id="role-opt-' + r.key + '-' + (r.subRole||'none') + '"' +
+            ' onclick="selectUserRole(\'' + r.key + '\',\'' + (r.subRole||'') + '\')">' +
+            '<div style="flex:1">' +
+              '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+                '<span style="font-size:18px">' + r.icon + '</span>' +
+                '<span style="font-size:13px;font-weight:700;color:var(--dash-text)">' + r.label + '</span>' +
+                '<span class="badge ' + r.badge + '" style="font-size:9px">' + r.key + (r.subRole?'/'+r.subRole:'') + '</span>' +
+              '</div>' +
+              '<div style="font-size:11px;color:var(--dash-text3);line-height:1.6">' + r.description + '</div>' +
+              '<div style="font-size:10px;color:var(--dash-text4);margin-top:4px">' +
+                r.access.slice(0,2).join(' · ') + (r.access.length>2?' · ...':'') +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('')}
       </div>
     </div>
 
@@ -353,26 +352,37 @@ async function openCreateUserModal(preRole, preSubRole) {
   /* Auto-select: preRole if given, otherwise first role */
   const defaultRole = preRole || ROLE_DEFS[0].key;
   const defaultSub  = preRole ? (preSubRole||'') : (ROLE_DEFS[0].subRole||'');
-  /* Set immediately and also defer in case DOM isn't ready */
+  /* Pre-set hidden input value immediately on open */
   window._selectedRole = { userType: defaultRole, subRole: defaultSub };
-  setTimeout(() => selectUserRole(defaultRole, defaultSub), 80);
+  setTimeout(() => {
+    const inp = document.getElementById('nu-role-value');
+    if (inp && !inp.value) inp.value = defaultRole + '|' + defaultSub;
+    selectUserRole(defaultRole, defaultSub);
+  }, 30);
 }
 
 function selectUserRole(role, subRole) {
   subRole = subRole || '';
-  /* 1. Store in window variable */
+
+  /* 1. Update hidden input — most reliable source of truth */
+  const inp = document.getElementById('nu-role-value');
+  if (inp) inp.value = role + '|' + subRole;
+
+  /* 2. Store in window var as backup */
   window._selectedRole = { userType: role, subRole };
 
-  /* 2. Update DOM */
+  /* 3. Update visual styles */
   document.querySelectorAll('[id^="role-opt-"]').forEach(el => {
-    const inp = el.querySelector('input');
-    if (!inp) return;
-    const selected = inp.value === role + '|' + subRole;
-    inp.checked = selected;
-    el.dataset.selected = selected ? '1' : '0';
-    el.style.borderColor = selected ? 'var(--gold)'              : 'var(--dash-border2)';
-    el.style.background  = selected ? 'rgba(201,163,78,0.06)'   : '';
-    el.style.boxShadow   = selected ? '0 0 0 1px rgba(201,163,78,0.4)' : 'none';
+    const key = el.id.replace('role-opt-','').replace('-none','').replace(/-([^-]*)$/,'|$1');
+    const val = el.id.replace('role-opt-','');
+    const parts = val.split('-');
+    const elRole = parts[0];
+    const elSub  = parts.length > 1 && parts[parts.length-1] !== 'none' ? parts.slice(1).join('-') : '';
+    const selected = elRole === role && elSub === subRole;
+    el.style.borderColor = selected ? 'var(--gold)'           : 'var(--dash-border2)';
+    el.style.borderWidth = selected ? '2px'                   : '2px';
+    el.style.background  = selected ? 'rgba(201,163,78,0.06)' : '';
+    el.dataset.selected  = selected ? '1' : '0';
   });
 
   const locWrap = document.getElementById('nu-loc-wrap');
@@ -388,27 +398,27 @@ async function submitCreateUser() {
   const email  = document.getElementById('nu-email')?.value.trim();
   const pass   = document.getElementById('nu-pass')?.value;
   const locId  = document.getElementById('nu-location')?.value||null;
-  /* Triple fallback to resolve role — in case _selectedRole was not set yet */
-  let sel = window._selectedRole;
+  /* Read role — hidden input is most reliable (updated on every click + pre-set on open) */
+  let sel = null;
 
-  if (!sel?.userType) {
-    /* Fallback 1: radio :checked */
-    const r = document.querySelector('[name="nu-role"]:checked');
-    if (r) { const [ut,sr]=r.value.split('|'); sel={userType:ut,subRole:sr||''}; }
+  /* Primary: hidden input */
+  const roleInp = document.getElementById('nu-role-value');
+  if (roleInp?.value) {
+    const [ut, sr] = roleInp.value.split('|');
+    if (ut) sel = { userType: ut, subRole: sr || '' };
   }
-  if (!sel?.userType) {
-    /* Fallback 2: data-selected attribute */
-    const el = document.querySelector('[id^="role-opt-"][data-selected="1"]');
-    const r = el?.querySelector('input');
-    if (r) { const [ut,sr]=r.value.split('|'); sel={userType:ut,subRole:sr||''}; }
+  /* Fallback: window variable */
+  if (!sel?.userType && window._selectedRole?.userType) {
+    sel = window._selectedRole;
   }
+  /* Last resort: gold-highlighted card */
   if (!sel?.userType) {
-    /* Fallback 3: gold background card */
-    for (const el of (document.querySelectorAll('[id^="role-opt-"]')||[])) {
-      if ((el.style.background||'').includes('201,163,78')) {
-        const r = el.querySelector('input');
-        if (r) { const [ut,sr]=r.value.split('|'); sel={userType:ut,subRole:sr||''}; break; }
-      }
+    for (const el of document.querySelectorAll('[id^="role-opt-"][data-selected="1"]')) {
+      const id = el.id.replace('role-opt-','');
+      const parts = id.split('-');
+      const ut = parts[0];
+      const sr = parts.length > 1 && parts[parts.length-1] !== 'none' ? parts.slice(1).join('-') : '';
+      if (ut) { sel = { userType: ut, subRole: sr }; break; }
     }
   }
 
