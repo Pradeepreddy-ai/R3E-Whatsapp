@@ -173,7 +173,7 @@ async function renderSAUsers() {
                 </tr>
               </thead>
               <tbody id="users-tbody">
-                ${users.map(u => userRow(u)).join('')}
+                ${users.map(u => { try { return userRow(u); } catch(e) { return '<tr><td colspan="6" style="color:var(--danger);font-size:11px">Row error: '+e.message+'</td></tr>'; } }).join('')}
               </tbody>
             </table>
           </div>
@@ -269,8 +269,8 @@ function userRow(u) {
       </div>
     </td>
     <td style="font-size:12px;color:var(--dash-text2)">${u.locationName||'<span style="color:var(--dash-text4)">All / None</span>'}</td>
-    <td style="font-size:11px;color:var(--dash-text3)">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB') : '—'}</td>
-    <td style="font-size:11px;color:var(--dash-text3)">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('en-GB') : '<span style="color:var(--dash-text4)">Never</span>'}</td>
+    <td style="font-size:11px;color:var(--dash-text3)">${u.createdAt ? (()=>{try{return new Date(u.createdAt).toLocaleDateString('en-GB');}catch(e){return '—';}})() : '—'}</td>
+    <td style="font-size:11px;color:var(--dash-text3)">${u.lastLogin ? (()=>{try{return new Date(u.lastLogin).toLocaleDateString('en-GB');}catch(e){return '?';}})() : '<span style="color:var(--dash-text4)">Never</span>'}</td>
     <td>
       <div style="display:flex;gap:6px">
         <button class="btn btn-xs" style="padding:3px 8px;font-size:10px"
@@ -352,41 +352,32 @@ async function openCreateUserModal(preRole, preSubRole) {
   /* Auto-select: preRole if given, otherwise first role */
   const defaultRole = preRole || ROLE_DEFS[0].key;
   const defaultSub  = preRole ? (preSubRole||'') : (ROLE_DEFS[0].subRole||'');
-  /* Pre-set hidden input value immediately on open */
-  window._selectedRole = { userType: defaultRole, subRole: defaultSub };
-  setTimeout(() => {
-    const inp = document.getElementById('nu-role-value');
-    if (inp && !inp.value) inp.value = defaultRole + '|' + defaultSub;
-    selectUserRole(defaultRole, defaultSub);
-  }, 30);
+  /* Set role IMMEDIATELY before modal renders (no timing dependency) */
+  window.R3E_SELECTED_ROLE = { userType: defaultRole, subRole: defaultSub };
+  /* Then update card visuals once DOM is ready */
+  setTimeout(() => selectUserRole(defaultRole, defaultSub), 50);
 }
 
 function selectUserRole(role, subRole) {
   subRole = subRole || '';
 
-  /* 1. Update hidden input — most reliable source of truth */
-  const inp = document.getElementById('nu-role-value');
-  if (inp) inp.value = role + '|' + subRole;
+  /* Module-level var — always set, DOM-independent */
+  window.R3E_SELECTED_ROLE = { userType: role, subRole };
 
-  /* 2. Store in window var as backup */
-  window._selectedRole = { userType: role, subRole };
-
-  /* 3. Update visual styles */
+  /* Update card visuals */
   document.querySelectorAll('[id^="role-opt-"]').forEach(el => {
-    const key = el.id.replace('role-opt-','').replace('-none','').replace(/-([^-]*)$/,'|$1');
-    const val = el.id.replace('role-opt-','');
-    const parts = val.split('-');
+    const parts  = el.id.replace('role-opt-','').split('-');
     const elRole = parts[0];
-    const elSub  = parts.length > 1 && parts[parts.length-1] !== 'none' ? parts.slice(1).join('-') : '';
-    const selected = elRole === role && elSub === subRole;
+    const elSub  = (parts.length > 1 && parts[parts.length-1] !== 'none')
+      ? parts.slice(1).join('-') : '';
+    const selected = (elRole === role && elSub === subRole);
     el.style.borderColor = selected ? 'var(--gold)'           : 'var(--dash-border2)';
-    el.style.borderWidth = selected ? '2px'                   : '2px';
     el.style.background  = selected ? 'rgba(201,163,78,0.06)' : '';
-    el.dataset.selected  = selected ? '1' : '0';
+    el.style.boxShadow   = selected ? '0 0 0 1px rgba(201,163,78,0.35)' : 'none';
   });
 
   const locWrap = document.getElementById('nu-loc-wrap');
-  if (locWrap) locWrap.style.display = role === 'superadmin' ? 'none' : 'block';
+  if (locWrap) locWrap.style.display = (role === 'superadmin') ? 'none' : 'block';
 }
 
 /* Clear stored role when modal closed */
@@ -398,37 +389,20 @@ async function submitCreateUser() {
   const email  = document.getElementById('nu-email')?.value.trim();
   const pass   = document.getElementById('nu-pass')?.value;
   const locId  = document.getElementById('nu-location')?.value||null;
-  /* Read role — hidden input is most reliable (updated on every click + pre-set on open) */
-  let sel = null;
-
-  /* Primary: hidden input */
-  const roleInp = document.getElementById('nu-role-value');
-  if (roleInp?.value) {
-    const [ut, sr] = roleInp.value.split('|');
-    if (ut) sel = { userType: ut, subRole: sr || '' };
-  }
-  /* Fallback: window variable */
-  if (!sel?.userType && window._selectedRole?.userType) {
-    sel = window._selectedRole;
-  }
-  /* Last resort: gold-highlighted card */
-  if (!sel?.userType) {
-    for (const el of document.querySelectorAll('[id^="role-opt-"][data-selected="1"]')) {
-      const id = el.id.replace('role-opt-','');
-      const parts = id.split('-');
-      const ut = parts[0];
-      const sr = parts.length > 1 && parts[parts.length-1] !== 'none' ? parts.slice(1).join('-') : '';
-      if (ut) { sel = { userType: ut, subRole: sr }; break; }
-    }
-  }
+  /* Read role from module var (set on every click, pre-set on modal open) */
+  const sel = window.R3E_SELECTED_ROLE || null;
 
   if (!fname) return showToast('First name is required.', 'error');
   if (!email) return showToast('Email address is required.', 'error');
   if (!pass)  return showToast('Password is required.', 'error');
   if (pass.length < 8) return showToast('Password must be at least 8 characters.', 'error');
-  if (!sel?.userType) return showToast('Please select a role — click on one of the role cards above.', 'error');
+  if (!sel?.userType) {
+    /* Emergency fallback: default to first role to unblock the user */
+    window.R3E_SELECTED_ROLE = { userType: 'superadmin', subRole: '' };
+    return showToast('Please click on a role card to select it, then try again.', 'error');
+  }
 
-  window._selectedRole = sel; /* cache for next time */
+  window.R3E_SELECTED_ROLE = sel;
   const { userType, subRole } = sel;
   const btn = document.querySelector('.modal-footer .btn-primary');
   if (btn) { btn.disabled=true; btn.textContent='Creating...'; }
