@@ -296,92 +296,69 @@ function filterUsersTable() {
 /* ── Create user modal ── */
 async function openCreateUserModal(preRole, preSubRole) {
   const locs = window._allLocations || [];
-  renderContent(document.getElementById('content').innerHTML); // keep page
+  const defaultVal = (preRole || 'superadmin') + '|' + (preSubRole || '');
+
+  /* Pre-set role BEFORE any DOM renders */
+  window.R3E_SELECTED_ROLE = { userType: preRole || 'superadmin', subRole: preSubRole || '' };
+
   openModal('md', 'Create New User', `
     <div class="grid-2">
-      <div class="form-group"><label class="form-label">First Name *</label>
-        <input id="nu-fname" class="form-input" placeholder="Sarah"/></div>
-      <div class="form-group"><label class="form-label">Last Name</label>
-        <input id="nu-lname" class="form-input" placeholder="Mitchell"/></div>
-    </div>
-    <div class="form-group"><label class="form-label">Email Address *</label>
-      <input id="nu-email" class="form-input" type="email" placeholder="sarah@r3e.platform"/></div>
-    <div class="form-group"><label class="form-label">Password * (min 8 chars)</label>
-      <input id="nu-pass" class="form-input" type="password" placeholder="Secure@Pass1"/>
-      <div class="form-hint">Share this with the user — they can reset it later via Forgot Password</div>
-    </div>
-
-    <div class="card" style="padding:14px;margin-bottom:14px;background:rgba(255,255,255,0.02)">
-      <div class="card-title" style="margin-bottom:12px">Role & Access</div>
-      <input type="hidden" id="nu-role-value" value="${preRole||'superadmin'}|${preSubRole||''}"/>
-      <div style="display:flex;flex-direction:column;gap:8px" id="role-selector">
-        ${ROLE_DEFS.map(r => {
-          const isDefault = preRole ? (r.key===preRole && (r.subRole||'')===(preSubRole||'')) : (r.key==='superadmin');
-          return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 12px;' +
-            'border:2px solid ' + (isDefault?'var(--gold)':'var(--dash-border2)') + ';border-radius:8px;cursor:pointer;transition:all .18s;' +
-            'background:' + (isDefault?'rgba(201,163,78,0.06)':'') + '"' +
-            ' id="role-opt-' + r.key + '-' + (r.subRole||'none') + '"' +
-            ' onclick="selectUserRole(\'' + r.key + '\',\'' + (r.subRole||'') + '\')">' +
-            '<div style="flex:1">' +
-              '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
-                '<span style="font-size:18px">' + r.icon + '</span>' +
-                '<span style="font-size:13px;font-weight:700;color:var(--dash-text)">' + r.label + '</span>' +
-                '<span class="badge ' + r.badge + '" style="font-size:9px">' + r.key + (r.subRole?'/'+r.subRole:'') + '</span>' +
-              '</div>' +
-              '<div style="font-size:11px;color:var(--dash-text3);line-height:1.6">' + r.description + '</div>' +
-              '<div style="font-size:10px;color:var(--dash-text4);margin-top:4px">' +
-                r.access.slice(0,2).join(' · ') + (r.access.length>2?' · ...':'') +
-              '</div>' +
-            '</div>' +
-          '</div>';
-        }).join('')}
+      <div class="form-group">
+        <label class="form-label">First Name *</label>
+        <input id="nu-fname" class="form-input" placeholder="Sarah"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input id="nu-lname" class="form-input" placeholder="Mitchell"/>
       </div>
     </div>
-
-    <div class="form-group" id="nu-loc-wrap" style="display:${['superadmin'].includes(preRole)?'none':'block'}">
-      <label class="form-label">Assign to Location <span style="color:var(--dash-text3)">(optional for admins)</span></label>
-      <select id="nu-location" class="form-select">
-        <option value="">All locations / Not assigned</option>
-        ${locs.map(l => `<option value="${l.id}">${l.name}</option>`).join('')}
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input id="nu-email" class="form-input" type="email" placeholder="sarah@r3e.platform"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password * (min 8 chars)</label>
+      <input id="nu-pass" class="form-input" type="password" placeholder="Secure@Pass1"/>
+      <div class="form-hint">Share this password with the user — they can reset it later</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role *</label>
+      <select id="nu-role-select" class="form-select" onchange="onRoleSelectChange(this.value)">
+        ${ROLE_DEFS.map(r =>
+          '<option value="' + r.key + '|' + (r.subRole||'') + '"' +
+          ((r.key+'|'+(r.subRole||'')) === defaultVal ? ' selected' : '') + '>' +
+          r.icon + ' ' + r.label +
+          '</option>'
+        ).join('')}
       </select>
     </div>
-  `,
-  `<button class="btn btn-primary" onclick="submitCreateUser()">Create User</button>
-   <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>`);
-
-  /* Auto-select: preRole if given, otherwise first role */
-  const defaultRole = preRole || ROLE_DEFS[0].key;
-  const defaultSub  = preRole ? (preSubRole||'') : (ROLE_DEFS[0].subRole||'');
-  /* Set role IMMEDIATELY before modal renders (no timing dependency) */
-  window.R3E_SELECTED_ROLE = { userType: defaultRole, subRole: defaultSub };
-  /* Then update card visuals once DOM is ready */
-  setTimeout(() => selectUserRole(defaultRole, defaultSub), 50);
+    <div id="nu-role-desc" class="alert-info" style="margin-bottom:14px;font-size:12px;line-height:1.7">
+      ${(() => { const r = ROLE_DEFS.find(x => (x.key+'|'+(x.subRole||'')) === defaultVal); return r ? '<strong>' + r.label + '</strong>: ' + r.description + '<br/><span style="color:var(--dash-text3)">' + r.access.slice(0,3).join(' · ') + '</span>' : ''; })()}
+    </div>
+    <div class="form-group" id="nu-loc-wrap">
+      <label class="form-label">Location <span style="color:var(--dash-text3)">(optional)</span></label>
+      <select id="nu-location" class="form-select">
+        <option value="">All locations / Not assigned</option>
+        ${locs.map(l => '<option value="' + l.id + '">' + l.name + '</option>').join('')}
+      </select>
+    </div>`,
+    `<button class="btn btn-primary" onclick="submitCreateUser()">Create User</button>
+     <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>`
+  );
 }
 
-function selectUserRole(role, subRole) {
-  subRole = subRole || '';
-
-  /* Module-level var — always set, DOM-independent */
-  window.R3E_SELECTED_ROLE = { userType: role, subRole };
-
-  /* Update card visuals */
-  document.querySelectorAll('[id^="role-opt-"]').forEach(el => {
-    const parts  = el.id.replace('role-opt-','').split('-');
-    const elRole = parts[0];
-    const elSub  = (parts.length > 1 && parts[parts.length-1] !== 'none')
-      ? parts.slice(1).join('-') : '';
-    const selected = (elRole === role && elSub === subRole);
-    el.style.borderColor = selected ? 'var(--gold)'           : 'var(--dash-border2)';
-    el.style.background  = selected ? 'rgba(201,163,78,0.06)' : '';
-    el.style.boxShadow   = selected ? '0 0 0 1px rgba(201,163,78,0.35)' : 'none';
-  });
-
+function onRoleSelectChange(val) {
+  const [ut, sr] = val.split('|');
+  window.R3E_SELECTED_ROLE = { userType: ut, subRole: sr || '' };
+  const descEl = document.getElementById('nu-role-desc');
   const locWrap = document.getElementById('nu-loc-wrap');
-  if (locWrap) locWrap.style.display = (role === 'superadmin') ? 'none' : 'block';
+  if (locWrap) locWrap.style.display = ut === 'superadmin' ? 'none' : 'block';
+  if (descEl) {
+    const r = ROLE_DEFS.find(x => (x.key + '|' + (x.subRole||'')) === val);
+    if (r) descEl.innerHTML = '<strong>' + r.label + '</strong>: ' + r.description + '<br/><span style="color:var(--dash-text3)">' + r.access.slice(0,3).join(' · ') + '</span>';
+  }
 }
 
-/* Clear stored role when modal closed */
-function closeModalAndClear() { window._selectedRole = null; closeModal(); }
 
 async function submitCreateUser() {
   const fname  = document.getElementById('nu-fname')?.value.trim();
@@ -389,8 +366,16 @@ async function submitCreateUser() {
   const email  = document.getElementById('nu-email')?.value.trim();
   const pass   = document.getElementById('nu-pass')?.value;
   const locId  = document.getElementById('nu-location')?.value||null;
-  /* Read role from module var (set on every click, pre-set on modal open) */
-  const sel = window.R3E_SELECTED_ROLE || null;
+  /* Read role: select element is most reliable, R3E_SELECTED_ROLE as backup */
+  let sel = null;
+  const roleSelect = document.getElementById('nu-role-select');
+  if (roleSelect?.value) {
+    const [ut, sr] = roleSelect.value.split('|');
+    if (ut) sel = { userType: ut, subRole: sr || '' };
+  }
+  if (!sel?.userType && window.R3E_SELECTED_ROLE?.userType) {
+    sel = window.R3E_SELECTED_ROLE;
+  }
 
   if (!fname) return showToast('First name is required.', 'error');
   if (!email) return showToast('Email address is required.', 'error');
