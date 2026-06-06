@@ -4,6 +4,22 @@
 ═══════════════════════════════════════════════════ */
 'use strict';
 
+
+function renderUsersTable() {
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody || tbody.dataset.rendered) return;
+  tbody.dataset.rendered = '1';
+  const users = window._allUsers || [];
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--dash-text3);padding:20px">No users found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    try { return userRow(u); }
+    catch(e) { return '<tr><td colspan="6" style="color:var(--danger);font-size:11px">Error: ' + e.message + '</td></tr>'; }
+  }).join('');
+}
+
 /* ── Role definitions with full access descriptions ── */
 const ROLE_DEFS = [
   {
@@ -127,12 +143,12 @@ async function renderSAUsers() {
 
       <!-- Tab strip -->
       <div class="tab-strip">
-        <button class="tab-btn active" onclick="switchTab(this,'tab-roles')">🏷️ Roles & Access</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-users')">👥 All Users (${users.length})</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-roles')">🏷️ Roles & Access</button>
+        <button class="tab-btn active" onclick="switchTab(this,'tab-users');renderUsersTable()">👥 All Users (${users.length})</button>
       </div>
 
       <!-- ── ROLES TAB ── -->
-      <div id="tab-roles" class="tab-panel active">
+      <div id="tab-roles" class="tab-panel hidden">
         <div style="margin-bottom:16px">
           <div style="font-size:12px;color:var(--dash-text3);line-height:1.8">
             Each role has a specific set of permissions. Assign roles carefully —
@@ -145,7 +161,7 @@ async function renderSAUsers() {
       </div>
 
       <!-- ── USERS TAB ── -->
-      <div id="tab-users" class="tab-panel hidden">
+      <div id="tab-users" class="tab-panel active">
         <!-- Filters -->
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
           <input id="user-search" class="form-input" style="flex:1;min-width:200px"
@@ -194,6 +210,8 @@ async function renderSAUsers() {
     /* Store for filtering */
     window._allUsers     = users;
     window._allLocations = locations;
+    /* Render user table immediately */
+    setTimeout(renderUsersTable, 10);
   } catch(e) {
     renderContent(`<div class="empty-state"><div class="empty-icon">⚠️</div>
       <div class="empty-title">Error loading users</div>
@@ -361,33 +379,32 @@ function onRoleSelectChange(val) {
 
 
 async function submitCreateUser() {
-  const fname  = document.getElementById('nu-fname')?.value.trim();
-  const lname  = document.getElementById('nu-lname')?.value.trim()||'';
-  const email  = document.getElementById('nu-email')?.value.trim();
-  const pass   = document.getElementById('nu-pass')?.value;
-  const locId  = document.getElementById('nu-location')?.value||null;
-  /* Read role: select element is most reliable, R3E_SELECTED_ROLE as backup */
-  let sel = null;
-  const roleSelect = document.getElementById('nu-role-select');
-  if (roleSelect?.value) {
-    const [ut, sr] = roleSelect.value.split('|');
-    if (ut) sel = { userType: ut, subRole: sr || '' };
-  }
-  if (!sel?.userType && window.R3E_SELECTED_ROLE?.userType) {
-    sel = window.R3E_SELECTED_ROLE;
-  }
+  /* Scope to active modal to avoid stale DOM elements from closed modals */
+  const $m = el => (document.querySelector('.modal-box') || document).querySelector('#'+el);
 
-  if (!fname) return showToast('First name is required.', 'error');
-  if (!email) return showToast('Email address is required.', 'error');
-  if (!pass)  return showToast('Password is required.', 'error');
-  if (pass.length < 8) return showToast('Password must be at least 8 characters.', 'error');
-  if (!sel?.userType) {
-    /* Emergency fallback: default to first role to unblock the user */
-    window.R3E_SELECTED_ROLE = { userType: 'superadmin', subRole: '' };
-    return showToast('Please click on a role card to select it, then try again.', 'error');
-  }
+  const fname  = $m('nu-fname')?.value?.trim() || '';
+  const lname  = $m('nu-lname')?.value?.trim() || '';
+  const email  = $m('nu-email')?.value?.trim() || '';
+  const pass   = $m('nu-pass')?.value || '';
+  const locId  = $m('nu-location')?.value || null;
 
-  window.R3E_SELECTED_ROLE = sel;
+  /* Role: select is the source of truth */
+  const roleSelectEl = $m('nu-role-select');
+  const roleVal  = roleSelectEl?.value || (window.R3E_SELECTED_ROLE
+    ? window.R3E_SELECTED_ROLE.userType + '|' + (window.R3E_SELECTED_ROLE.subRole||'')
+    : 'superadmin|');
+  const [roleType, roleSub] = roleVal.split('|');
+  const sel = roleType ? { userType: roleType, subRole: roleSub || '' } : null;
+
+  /* Debug log */
+  console.log('[CreateUser] fname:', fname, 'email:', email, 'pass:', pass?'set':'EMPTY', 'role:', roleVal);
+
+  if (!fname)            return showToast('First name is required.', 'error');
+  if (!email)            return showToast('Email address is required.', 'error');
+  if (!pass)             return showToast('Password is required — please fill the password field.', 'error');
+  if (pass.length < 8)   return showToast('Password must be at least 8 characters.', 'error');
+  if (!sel?.userType)    return showToast('Please select a role from the dropdown.', 'error');
+
   const { userType, subRole } = sel;
   const btn = document.querySelector('.modal-footer .btn-primary');
   if (btn) { btn.disabled=true; btn.textContent='Creating...'; }
